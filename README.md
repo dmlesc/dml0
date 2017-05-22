@@ -28,7 +28,7 @@ lsblk -o NAME,SIZE,FSTYPE,TYPE,MOUNTPOINT
 
 sudo mdadm --zero-superblock /dev/sda-j
 sudo nano /etc/mdadm/mdadm.conf
-   # ARRAY /dev/md0 metadata=1.2 name=mdadmwrite:0 UUID=7261fb9c:976d0d97:30bc63ce:85e76e91
+   ARRAY /dev/md0 metadata=1.2 name=mdadmwrite:0 UUID=7261fb9c:976d0d97:30bc63ce:85e76e91
 sudo update-initramfs -u
 
 sudo mdadm --create --verbose /dev/md0 --level=0 --raid-devices=4 /dev/sdc /dev/sdd /dev/sde /dev/sdf
@@ -56,4 +56,3 @@ sudo mdadm --detail --scan | sudo tee -a /etc/mdadm/mdadm.conf
 sudo update-initramfs -u
 
 df -h -x devtmpfs -x tmpfs
-
