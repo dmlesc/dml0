@@ -57,11 +57,3 @@ sudo update-initramfs -u
 
 df -h -x devtmpfs -x tmpfs
 
-
-
-
-
-
-
-
-
