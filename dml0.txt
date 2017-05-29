@@ -104,3 +104,38 @@ hdparm -W /dev/sda
     write-caching =  1 (on)
 
 apt install iotop
+
+
+sudo apt-get install qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
+logout
+login  # membership of libvirtd becomes effective
+
+virsh list --all
+
+sudo apt install virtinst
+
+sudo chgrp libvirtd /mnt/md0
+sudo chmod g+w /mnt/md0/
+mkdir /mnt/md0/libvirt
+
+sudo virt-install -n test0 -r 512 \
+--disk path=/mnt/md0/libvirt/test0.img,bus=virtio,size=4 -c \
+/mnt/md0/ISOs/ubuntu-16.04.2-server-amd64.iso --network network=default,model=virtio \
+--graphics vnc,listen=0.0.0.0 --noautoconsole -v
+
+Starting install...
+Allocating 'test0.img'                                                                                                      | 4.0 GB  00:00:00
+Creating domain...                                                                                                          |    0 B  00:00:00
+Domain installation still in progress. You can reconnect to
+the console to complete the installation process.
+
+
+virsh destroy test0
+virsh undefine test0
+
+
+sudo virt-install -n test1 -r 512 \
+--disk path=/mnt/md0/libvirt/test1.img,bus=virtio,size=4 -c \
+/mnt/md5/ISOs/ubuntu-16.04.2-server-amd64.iso --network network=default,model=virtio \
+--graphics vnc,listen=0.0.0.0 --noautoconsole -v
+
