@@ -106,6 +106,14 @@ hdparm -W /dev/sda
 apt install iotop
 
 
+sudo mkdir /mnt/md0/swap
+cd /mnt/md0/swap
+sudo fallocate -l 32g /mnt/md0/swap/32GiB.swap
+sudo chmod 600 /mnt/md0/swap/32GiB.swap
+sudo mkswap /mnt/md0/swap/32GiB.swap
+sudo swapon /mnt/md0/swap/32GiB.swap
+echo '/mnt/md0/swap/32GiB.swap swap swap defaults 0 0' | sudo tee -a /etc/fstab
+
 sudo apt-get install qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
 logout
 login  # membership of libvirtd becomes effective
@@ -134,8 +142,74 @@ virsh destroy test0
 virsh undefine test0
 
 
-sudo virt-install -n test1 -r 512 \
---disk path=/mnt/md0/libvirt/test1.img,bus=virtio,size=4 -c \
+sudo virt-install -n mint0 -r 2048 \
+--disk path=/mnt/md0/libvirt/mint0.img,bus=virtio,size=20 -c \
+/mnt/md5/ISOs/linuxmint-18.1-xfce-64bit.iso --network network=default,model=virtio \
+--graphics vnc,listen=0.0.0.0 --noautoconsole -v
+
+
+sudo virt-install -n trans0 -r 512 \
+--disk path=/mnt/md5/libvirt/trans0.img,bus=virtio,size=100 -c \
 /mnt/md5/ISOs/ubuntu-16.04.2-server-amd64.iso --network network=default,model=virtio \
 --graphics vnc,listen=0.0.0.0 --noautoconsole -v
+
+sudo virt-install -n files0 -r 512 \
+--disk path=/mnt/md1/libvirt/files0.img,bus=virtio,size=10 -c \
+/mnt/md5/ISOs/ubuntu-16.04.2-server-amd64.iso --network bridge=virbr0 \
+--graphics vnc,listen=0.0.0.0 --noautoconsole -v
+
+
+
+auto lo
+iface lo inet loopback
+
+auto br0
+iface br0 inet dhcp
+bridge_ports eth0
+bridge_stp off
+bridge_fd 0
+bridge_maxwait 0
+
+
+
+   <interface type='bridge'>
+      <mac address='52:54:00:59:61:96'/>
+      <source bridge='br0'/>
+      <model type='rtl8139'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
+   </interface>
+
+   <interface type='network'>
+      <mac address='52:54:00:d4:4e:f4'/>
+      <source network='default'/>
+      <model type='virtio'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
+   </interface>
+
+   
+dd if=/dev/zero of=/mnt/md1/libvirt/files0-data0.img bs=1M count=204800
+sudo qemu-img create -f raw /mnt/md1/libvirt/files0-data0-test.img 5G
+
+chmod 600 files0-data0.img
+chown libvirt-qemu:kvm files0-data0.img
+
+virsh attach-disk files0 /mnt/md1/libvirt/files0-data0.img vdb --live --persistent
+
+fdisk /dev/vdb
+mkfs.ext4 /dev/vdb1
+mount /dev/vdb1 /mnt/data0
+nano /etc/fstab
+   /dev/vdb1   /mnt/data0   ext4   defaults   0 0
+
+
+
+
+sudo virt-install -n graf0 -r 512 \
+--disk path=/mnt/md1/libvirt/graf0.img,bus=virtio,size=50 -c \
+/mnt/md5/ISOs/ubuntu-16.04.2-server-amd64.iso --network bridge=br0,model=virtio \
+--graphics vnc,listen=0.0.0.0 --noautoconsole -v
+
+
+
+
 
