@@ -58,6 +58,10 @@ sudo update-initramfs -u
 df -h -x devtmpfs -x tmpfs
 
 
+mdadm --stop /dev/md5
+ARRAY /dev/md5 metadata=1.2 spares=1 name=dml:5 UUID=eb6397b7:820557b5:8a3c165c:b63e2c9d
+
+
 
 apt install sysstat
 
@@ -114,6 +118,11 @@ sudo mkswap /mnt/md0/swap/32GiB.swap
 sudo swapon /mnt/md0/swap/32GiB.swap
 echo '/mnt/md0/swap/32GiB.swap swap swap defaults 0 0' | sudo tee -a /etc/fstab
 
+lvremove /dev/mapper/dml--vg-swap_1
+lvextend /dev/mapper/dml--vg-root /dev/sdk5
+resize2fs /dev/mapper/dml--vg-root
+
+
 sudo apt-get install qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
 logout
 login  # membership of libvirtd becomes effective
@@ -156,6 +165,12 @@ sudo virt-install -n trans0 -r 512 \
 sudo virt-install -n files0 -r 512 \
 --disk path=/mnt/md1/libvirt/files0.img,bus=virtio,size=10 -c \
 /mnt/md5/ISOs/ubuntu-16.04.2-server-amd64.iso --network bridge=virbr0 \
+--graphics vnc,listen=0.0.0.0 --noautoconsole -v
+
+
+virt-install -n files0 -r 512 \
+--disk path=/vol0/files0/files0.img,bus=virtio,size=10 -c \
+/vol0/iso/ubuntu-16.04.2-server-amd64.iso --network bridge=br0 \
 --graphics vnc,listen=0.0.0.0 --noautoconsole -v
 
 
@@ -208,6 +223,56 @@ sudo virt-install -n graf0 -r 512 \
 --disk path=/mnt/md1/libvirt/graf0.img,bus=virtio,size=50 -c \
 /mnt/md5/ISOs/ubuntu-16.04.2-server-amd64.iso --network bridge=br0,model=virtio \
 --graphics vnc,listen=0.0.0.0 --noautoconsole -v
+
+
+
+virt-clone \
+   --original files0 \
+   --name graf0 \
+   --file /vol0/graf0/graf0.img
+
+qemu-img create -f raw /vol0/graf0/graf0-data0.img 10G
+chown libvirt-qemu:kvm graf0-data0.img
+chmod 600 graf0-data0.img
+virsh attach-disk graf0 /vol0/graf0/graf0-data0.img vdb --live --persistent
+
+
+
+
+=====
+ ZFS
+=====
+
+https://wiki.ubuntu.com/ZFS
+https://wiki.ubuntu.com/Kernel/Reference/ZFS
+https://pthree.org/2012/04/17/install-zfs-on-debian-gnulinux/
+
+apt install zfsutils-linux
+zpool create -f vol0 /dev/sda /dev/sdc /dev/sdd /dev/sde
+zpool create -f vol0 /dev/disk/by-id/ata-SAMSUNG_SSD_SM841N_mSATA_128GB_S1JXNYAF610402 /dev/disk/by-id/ata-SAMSUNG_SSD_SM841N_mSATA_128GB_S1JXNYAF404581 /dev/disk/by-id/ata-SAMSUNG_SSD_SM841_mSATA_128GB_S130NYADC33693 /dev/disk/by-id/ata-SAMSUNG_SSD_SM841N_mSATA_128GB_S1JXNYAF610365
+zpool list
+zpool status
+zfs set mountpoint=/mnt/vol0 vol0
+
+zpool import vol0
+
+zfs get compression vol0
+zfs set compression=lz4 vol0
+zfs get compressratio
+
+zpool iostat vol0 
+
+
+zpool create -f vol0 mirror /dev/disk/by-id/ata-ST500DM002-1BD142_W3T4J4HP /dev/disk/by-id/ata-ST500DM002-1BD142_Z6E39FZS
+zpool add -f vol0 cache /dev/disk/by-id/ata-KINGSTON_SVP200S37A120G_50026B722A03F3FE
+
+
+
+
+
+
+
+
 
 
 
