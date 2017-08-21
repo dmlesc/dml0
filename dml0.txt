@@ -198,20 +198,28 @@ zpool create -f vol0 /dev/sda /dev/sdc /dev/sdd /dev/sde
 zpool create -f vol0 /dev/disk/by-id/ata-SAMSUNG_SSD_SM841N_mSATA_128GB_S1JXNYAF610402 /dev/disk/by-id/ata-SAMSUNG_SSD_SM841N_mSATA_128GB_S1JXNYAF404581 /dev/disk/by-id/ata-SAMSUNG_SSD_SM841_mSATA_128GB_S130NYADC33693 /dev/disk/by-id/ata-SAMSUNG_SSD_SM841N_mSATA_128GB_S1JXNYAF610365
 zpool list
 zpool status
+
+zfs create vol0/test
+
 zfs set mountpoint=/mnt/vol0 vol0
 
 zpool import vol0
 
 zfs get compression vol0
-zfs set compression=lz4 vol0
 zfs get compressratio
 
 zpool iostat vol0 
 
-
 zpool create -f vol0 mirror /dev/disk/by-id/ata-ST500DM002-1BD142_W3T4J4HP /dev/disk/by-id/ata-ST500DM002-1BD142_Z6E39FZS
-zpool add -f vol0 cache /dev/disk/by-id/ata-KINGSTON_SVP200S37A120G_50026B722A03F3FE
 
+
+zpool create -f vol0 raidz1 /dev/disk/by-id/ata-ST9320423AS_5VJ2FXYL /dev/disk/by-id/ata-ST320LT007-9ZV142_W0Q3202Z /dev/disk/by-id/ata-WDC_WD3200BEKT-75PVMT0_WD-WX11A8151267
+zpool add -f vol0 cache /dev/disk/by-id/ata-KINGSTON_SVP200S37A120G_50026B722A03F3FE
+zfs set compression=lz4 vol0
+
+zpool create -f vol0 raidz1 /dev/disk/by-id/ata-ST9500423AS_6WR0RV3D /dev/disk/by-id/ata-ST9500423AS_6WR16K2G /dev/disk/by-id/ata-WDC_WD5000BPKX-75HPJT0_WD-WXH1E93ETVX3
+zpool add -f vol0 cache /dev/disk/by-id/ata-Radeon_R7_A22MD061450000104
+zfs set compression=lz4 vol0
 
 
 =======
@@ -219,6 +227,8 @@ zpool add -f vol0 cache /dev/disk/by-id/ata-KINGSTON_SVP200S37A120G_50026B722A03
 =======
 
 https://help.ubuntu.com/community/Smartmontools
+
+apt install smartmontools --no-install-recommends
 
 wipefs -a /dev/sdb
 
@@ -285,9 +295,63 @@ hdparm -W /dev/sda
 apt install iotop
 
 
+=====
+ FIO
+=====
+
 https://docs.microsoft.com/en-us/azure/storage/storage-premium-storage-performance
+
+
+mkfs.ext4 -F /dev/sda1
+
 
 apt install fio
 
+root@dml0:/mnt# cat fioKwrite.ini
+[global]
+size=10g
+  direct=1
+iodepth=256
+ioengine=libaio
+bs=8k
+
+[writer1]
+rw=randwrite
+directory=/mnt/test
+[writer2]
+rw=randwrite
+directory=/mnt/test
+[writer3]
+rw=randwrite
+directory=/mnt/test
+[writer4]
+rw=randwrite
+directory=/mnt/test
 
 
+
+fio --runtime 60 fiowrite.ini >> Kwrite.txt
+
+
+[global]
+size=10g
+direct=1
+iodepth=256
+ioengine=libaio
+bs=8k
+
+[reader1]
+rw=randread
+directory=/mnt/test
+[reader2]
+rw=randread
+directory=/mnt/test
+[reader3]
+rw=randread
+directory=/mnt/test
+[reader4]
+rw=randread
+directory=/mnt/test
+
+
+fio --runtime 60 fioread.ini >> Kread.txt
