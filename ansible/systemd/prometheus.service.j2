@@ -1,0 +1,12 @@
+[Unit]
+Description=prometheus
+After=network.target
+
+[Service]
+User=root
+ExecStart={{ prom_dir }}/prometheus -config.file={{ prom_dir }}/prometheus.yml -storage.local.path={{ prom_data_dir }}
+WorkingDirectory={{ prom_dir }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

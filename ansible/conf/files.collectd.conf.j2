@@ -1,0 +1,54 @@
+Hostname "{{ inventory_hostname }}"
+AutoLoadPlugin false
+
+LoadPlugin syslog
+LoadPlugin cpu
+LoadPlugin df
+LoadPlugin disk
+LoadPlugin interface
+LoadPlugin memory
+LoadPlugin swap
+LoadPlugin tcpconns
+LoadPlugin zfs_arc
+LoadPlugin write_graphite
+
+<Plugin syslog>
+  LogLevel info
+</Plugin>
+<Plugin cpu>
+  ReportByCpu true
+  ReportByState true
+  ValuesPercentage false
+</Plugin>
+<Plugin "df">
+  MountPoint "/"
+  MountPoint "/vol0/logs"
+</Plugin>
+<Plugin disk>
+  Disk "sda"
+  Disk "sdb"
+  Disk "sdc"
+  IgnoreSelected false
+</Plugin>
+<Plugin interface>
+  Interface "{{ ansible_interfaces[1] }}"
+  IgnoreSelected false
+</Plugin>
+<Plugin "tcpconns">
+  ListeningPorts false
+  LocalPort "22"
+  LocalPort "139"
+  LocalPort "445"
+</Plugin>
+<Plugin write_graphite>
+  <Node "{{ graphite_node }}">
+    Host "{{ graphite_host }}"
+    Protocol "tcp"
+    LogSendErrors true
+    Prefix "collectd."
+  </Node>
+</Plugin>
+
+<Include "/etc/collectd/collectd.conf.d">
+  Filter "*.conf"
+</Include>

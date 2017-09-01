@@ -1,0 +1,12 @@
+[Unit]
+Description=es_backup
+After=network.target
+
+[Service]
+User=dml
+ExecStart=/usr/bin/node {{ install_dir }}/es_backup.js es
+WorkingDirectory={{ install_dir }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

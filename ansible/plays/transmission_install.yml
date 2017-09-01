@@ -1,0 +1,35 @@
+---
+- hosts: trans0
+  become: yes
+  vars:
+    none: none
+
+  tasks:
+    - name: add transmission repo
+      apt_repository:
+        repo: 'ppa:transmissionbt/ppa'
+    - name: update apt cache
+      apt:
+        update_cache: yes
+    - name: install transmission
+      apt: name={{item}} state=present
+      with_items:
+      - transmission-cli
+      - transmission-common
+      - transmission-daemon
+    - name: stop transmission-daemon
+      service:
+        name: transmission-daemon
+        state: stopped
+    - name: copy transmission settings.json
+      template:
+        src: ../conf/transmission.settings.json
+        dest: /etc/transmission-daemon/settings.json
+        owner: root
+        group: root
+        mode: 0644
+        backup: yes
+    - name: start transmission-daemon
+      service:
+        name: transmission-daemon
+        state: started

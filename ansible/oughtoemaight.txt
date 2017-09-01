@@ -1,0 +1,121 @@
+=========
+ ansible
+=========
+
+http://docs.ansible.com/ansible/latest/intro_installation.html
+   Python
+
+Default Hosts file
+   /etc/ansible/hosts
+
+ansible all -k -m ping
+SSH password:
+10.1.0.117 | FAILED! => {
+    "changed": false,
+    "failed": true,
+    "module_stderr": "Shared connection to 10.1.0.117 closed.\r\n",
+    "module_stdout": "/bin/sh: 1: /usr/bin/python: not found\r\n",
+    "msg": "MODULE FAILURE",
+    "rc": 0
+}
+
+
+
+ansible all -k -m ping
+SSH password:
+10.1.0.117 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+
+
+https://help.ubuntu.com/community/SSH/OpenSSH/Keys
+
+ssh-key-gen
+
+ansible all -m ping
+10.1.0.117 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+
+ansible all -a "/bin/echo hello"
+10.1.0.117 | SUCCESS | rc=0 >>
+hello
+
+
+ansible all -m ping -b
+dml-files0 | FAILED! => {
+    "changed": false,
+    "failed": true,
+    "module_stderr": "Shared connection to dml-files0 closed.\r\n",
+    "module_stdout": "sudo: a password is required\r\n",
+    "msg": "MODULE FAILURE",
+    "rc": 1
+}
+
+
+ansible all -m ping -b
+dml-files0 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+
+
+ansible all -m setup --tree /tmp/facts
+
+
+//servername/sharename  /media/windowsshare  cifs  username=msusername,password=mspassword,iocharset=utf8,sec=ntlm  0  0
+
+
+==============
+ Init Prepare
+==============
+
+Key
+  cd ~/.ssh
+  ssh-keygen
+  chmod 400 id_*
+
+Local
+   sudo visudo
+      dml ALL=(ALL) NOPASSWD: ALL
+   apt install python2.7
+   ln -s /usr/bin/python2.7 /usr/bin/python
+
+Remote
+   ssh-copy-id user@host
+
+
+===============
+ Begin Ansible
+===============
+
+ssh-agent bash
+ssh-add ~/.ssh/id_...
+ 
+
+
+ 
+      notify:
+      - reload prometheus
+
+  handlers:
+    - name: reload prometheus
+      uri:
+        url: http://{{ prom_url }}/-/reload
+        method: POST
+        status_code: 200
+        
+
+
+    - name: copy nginx.conf
+      template:
+        src: ../conf/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+        owner: root
+        group: root
+        mode: 0644
+        backup: yes
+      notify:
+      - restart nginx

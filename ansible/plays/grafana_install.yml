@@ -1,0 +1,31 @@
+---
+- hosts: dml1 
+  become: yes
+  vars:
+    graf_ver: grafana_4.4.3_amd64
+    
+  tasks:
+    - name: install grafana repo
+      apt_repository:
+        repo: deb https://packagecloud.io/grafana/stable/debian/ jessie main
+        state: present
+    - name: add grafana Package Cloud key
+      apt_key:
+        url: "https://packagecloud.io/gpg.key"
+        state: present
+    - name: install grafana
+      apt:
+        update_cache: yes
+        name: grafana
+        state: present
+
+    - name: enable grafana-server service
+      systemd:
+        daemon_reload: yes
+        name: grafana-server
+        enabled: yes
+        masked: no
+    - name: start grafana-server
+      systemd:
+        name: grafana-server
+        state: started

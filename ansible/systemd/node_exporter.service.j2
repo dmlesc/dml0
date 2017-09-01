@@ -1,0 +1,12 @@
+[Unit]
+Description=node_exporter
+After=network.target
+
+[Service]
+User=root
+ExecStart={{ node_dir }}/node_exporter
+WorkingDirectory={{ node_dir }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

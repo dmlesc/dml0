@@ -1,0 +1,12 @@
+[Unit]
+Description=cdn_backup
+After=network.target
+
+[Service]
+User=dml
+ExecStart=/usr/bin/node {{ install_dir }}/cdn_backup.js cdn
+WorkingDirectory={{ install_dir }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
