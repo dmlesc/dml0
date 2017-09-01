@@ -64,17 +64,16 @@ resize2fs /dev/mapper/dml--vg-root
  KVM
 =====
 
-sudo apt install qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
+apt install qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils virtinst
 logout
 login  # membership of libvirtd becomes effective
 
 virsh list --all
+virsh destroy test0
+virsh undefine test0
 
-sudo apt install virtinst
-
-sudo chgrp libvirtd /mnt/md0
-sudo chmod g+w /mnt/md0/
-mkdir /mnt/md0/libvirt
+chgrp libvirtd /vol0/kvm
+chmod g+w /vol0/kvm
 
 nano /etc/network/interfaces 
   auto lo
@@ -87,100 +86,44 @@ nano /etc/network/interfaces
   bridge_fd 0
   bridge_maxwait 0
 
+virt-install -v \
+  --name base0 \
+  --vcpus 1 \
+  --memory 512 \
+  --disk path=/vol0/kvm/base0.img,bus=virtio,size=8 \
+  --cdrom /vol0/files/iso/ubuntu-16.04.3-server-amd64.iso \
+  --network bridge=br0,model=virtio \
+  --graphics vnc,listen=0.0.0.0 \
+  --noautoconsole
+
+  --network network=default,model=virtio \
   
-  <interface type='bridge'>
-    <mac address='52:54:00:59:61:96'/>
-    <source bridge='br0'/>
-    <model type='rtl8139'/>
-    <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
-  </interface>
+virt-clone \
+  --original base0 \
+  --name trans0 \
+  --file /vol0/kvm/trans0.img
 
-  <interface type='network'>
-    <mac address='52:54:00:d4:4e:f4'/>
-    <source network='default'/>
-    <model type='virtio'/>
-    <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
-  </interface>
+virsh start trans0
+ssh trans0
+nano /etc/hostname
+  trans0
+nano /etc/hosts
+  127.0.1.1   trans0
+reboot
 
+qemu-img create -f raw /vol0/kvm/trans0_data0.img 100G
+chmod 600 trans0_data0.img
+chown libvirt-qemu:kvm trans0_data0.img
+virsh attach-disk trans0 /vol0/kvm/trans0_data0.img vdb --live --persistent
 
-sudo virt-install -n test0 -r 512 \
---disk path=/mnt/md0/libvirt/test0.img,bus=virtio,size=4 -c \
-/mnt/md0/ISOs/ubuntu-16.04.2-server-amd64.iso --network network=default,model=virtio \
---graphics vnc,listen=0.0.0.0 --noautoconsole -v
-
-
-virsh destroy test0
-virsh undefine test0
-
-
-sudo virt-install -n mint0 -r 2048 \
---disk path=/mnt/md0/libvirt/mint0.img,bus=virtio,size=20 -c \
-/mnt/md5/ISOs/linuxmint-18.1-xfce-64bit.iso --network network=default,model=virtio \
---graphics vnc,listen=0.0.0.0 --noautoconsole -v
-
-
-sudo virt-install -n trans0 -r 512 \
---disk path=/mnt/md5/libvirt/trans0.img,bus=virtio,size=100 -c \
-/mnt/md5/ISOs/ubuntu-16.04.2-server-amd64.iso --network network=default,model=virtio \
---graphics vnc,listen=0.0.0.0 --noautoconsole -v
-
-sudo virt-install -n files0 -r 512 \
---disk path=/mnt/md1/libvirt/files0.img,bus=virtio,size=10 -c \
-/mnt/md5/ISOs/ubuntu-16.04.2-server-amd64.iso --network bridge=virbr0 \
---graphics vnc,listen=0.0.0.0 --noautoconsole -v
-
-
-virt-install -n files0 -r 512 \
---disk path=/vol0/files0/files0.img,bus=virtio,size=10 -c \
-/vol0/iso/ubuntu-16.04.2-server-amd64.iso --network bridge=br0 \
---graphics vnc,listen=0.0.0.0 --noautoconsole -v
-
-
-dd if=/dev/zero of=/mnt/md1/libvirt/files0-data0.img bs=1M count=204800
-sudo qemu-img create -f raw /mnt/md1/libvirt/files0-data0-test.img 5G
-
-chmod 600 files0-data0.img
-chown libvirt-qemu:kvm files0-data0.img
-
-virsh attach-disk files0 /mnt/md1/libvirt/files0-data0.img vdb --live --persistent
-
+ssh trans0
 fdisk /dev/vdb
 mkfs.ext4 /dev/vdb1
+mkdir /mnt/data0
 mount /dev/vdb1 /mnt/data0
 nano /etc/fstab
   /dev/vdb1   /mnt/data0   ext4   defaults   0 0
 
-
-
-
-sudo virt-install -n graf0 -r 512 \
---disk path=/mnt/md1/libvirt/graf0.img,bus=virtio,size=50 -c \
-/mnt/md5/ISOs/ubuntu-16.04.2-server-amd64.iso --network bridge=br0,model=virtio \
---graphics vnc,listen=0.0.0.0 --noautoconsole -v
-
-
-
-virt-clone \
-  --original files0 \
-  --name graf0 \
-  --file /vol0/graf0/graf0.img
-
-qemu-img create -f raw /vol0/graf0/graf0-data0.img 10G
-chown libvirt-qemu:kvm graf0-data0.img
-chmod 600 graf0-data0.img
-virsh attach-disk graf0 /vol0/graf0/graf0-data0.img vdb --live --persistent
-
-
-virt-install -v \
-  -n base0 \
-  -r 512 \
-  --disk path=/vol0/kvm/base0.img,bus=virtio,size=8 \
-  -c /vol0/files/iso/ubuntu-16.04.3-server-amd64.iso \
-  --network network=default,model=virtio \
-  --graphics vnc,listen=0.0.0.0 \
-  --noautoconsole
-
-  --vcpus 2 \
 
 =========
  ansible
