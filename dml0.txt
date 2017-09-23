@@ -125,14 +125,42 @@ nano /etc/fstab
   /dev/vdb1   /mnt/data0   ext4   defaults   0 0
 
 
+virt-install -v \
+  --name udesk0 \
+  --vcpus 2 \
+  --memory 2048 \
+  --disk path=/vol0/kvm/udesk0.img,bus=virtio,size=20 \
+  --cdrom /vol0/files/iso/ubuntu-16.04.3-desktop-amd64.iso \
+  --network bridge=br0,model=virtio \
+  --graphics vnc,listen=0.0.0.0 \
+  --noautoconsole
+  
+
 =========
  ansible
 =========
 
-sudo apt-get install software-properties-common
-sudo apt-add-repository ppa:ansible/ansible
-sudo apt-get update
-sudo apt-get install ansible
+apt install software-properties-common
+apt-add-repository ppa:ansible/ansible
+apt update
+apt install ansible
+
+Key
+  cd ~/.ssh
+  ssh-keygen
+  chmod 400 id_*
+
+Local
+  sudo visudo
+    dml ALL=(ALL) NOPASSWD: ALL
+  apt install python2.7
+  ln -s /usr/bin/python2.7 /usr/bin/python
+
+Remote
+  ssh-copy-id user@host
+
+ssh-agent bash
+ssh-add ~/.ssh/id_...
 
 
 =====
@@ -290,4 +318,21 @@ nano /etc/samba/smb.conf
     guest ok = no
     writable = yes
     create mask = 0644
+
+====
+ PI
+====
+
+adduser dml
+visudo
+  dml   ALL = NOPASSWD: ALL
+mkdir -p /mnt/downloads
+nano /etc/hosts
+  192.168.2.48    trans0
+nano /etc/fstab
+  //trans0/downloads /mnt/downloads cifs uid=pi,gid=pi,credentials=/home/pi/.creds,iocharset=utf8,sec=ntlm 0 0
+nano /home/pi/.creds
+  username=
+  password=
+chmod 600 /home/pi/.creds
 

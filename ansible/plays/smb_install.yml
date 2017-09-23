@@ -1,5 +1,5 @@
 ---
-- hosts: dml1
+- hosts: trans0
   become: yes
   vars:
     none: none
@@ -11,7 +11,7 @@
         state: present
     - name: copy smb.conf
       template:
-        src: ../conf/files.smb.conf.j2
+        src: ../conf/smb.conf.j2
         dest: /etc/samba/smb.conf
         owner: root
         group: root
