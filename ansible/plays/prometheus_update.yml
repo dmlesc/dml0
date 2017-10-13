@@ -1,5 +1,5 @@
 ---
-- hosts: dml1
+- hosts: pi0
   become: yes
   vars:
     prom_dir: /opt/prometheus

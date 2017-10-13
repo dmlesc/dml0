@@ -1,0 +1,11 @@
+---
+- hosts: dml0
+  become: yes
+
+  tasks:
+    - name: create user
+      user:
+        name: files
+        password: $6$hHW/.C5XD$xv.hTpKCKWPoa4yT.wOxVtvADKfNNYTZjhwmsoG5DZiNH3A3mar2rHCvJsJnkobmlb73qTLsr6ZWRs7umTL4P0
+        createhome: no
+        state: present

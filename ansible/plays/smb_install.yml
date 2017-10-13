@@ -1,5 +1,5 @@
 ---
-- hosts: trans0
+- hosts: pi1
   become: yes
   vars:
     none: none

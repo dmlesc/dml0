@@ -1,5 +1,5 @@
 ---
-- hosts: base0
+- hosts: dml0
   become: yes
   vars:
     node_ver: node_exporter-0.14.0.linux-amd64

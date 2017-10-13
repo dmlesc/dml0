@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 User=root
-ExecStart={{ node_dir }}/node_exporter
+ExecStart={{ node_dir }}/node_exporter -collectors.enabled diskstats,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,vmstat,zfs
 WorkingDirectory={{ node_dir }}
 Restart=on-failure
 

@@ -1,16 +1,10 @@
 ---
-- hosts: trans0
+- hosts: pi1
   become: yes
   vars:
     none: none
 
   tasks:
-    - name: add transmission repo
-      apt_repository:
-        repo: 'ppa:transmissionbt/ppa'
-    - name: update apt cache
-      apt:
-        update_cache: yes
     - name: install transmission
       apt: name={{item}} state=present
       with_items:
