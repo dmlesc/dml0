@@ -14,4 +14,4 @@ scrape_configs:
         - pi0:9100
         - pi1:9100
         - dml0:9100
-        - fnsn0:9100
+        - ctrl0:9100
