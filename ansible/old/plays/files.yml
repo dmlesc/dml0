@@ -1,0 +1,63 @@
+---
+- hosts: files
+  become: yes
+  vars:
+    graphite_node: graphite
+    graphite_host: 10.1.0.116
+
+  tasks:
+    - name: install collectd
+      apt:
+        name: collectd
+        state: present
+    - name: copy collectd.conf
+      template:
+        src: ./conf/files.collectd.conf.j2
+        dest: /etc/collectd/collectd.conf
+        owner: root
+        group: root
+        mode: 0644
+        backup: yes
+      notify:
+      - restart collectd
+    - name: install samba
+      apt:
+        name: samba
+        state: present
+    - name: create user
+      user:
+        name: files
+        password: $6$hHW/.C5XD$xv.hTpKCKWPoa4yT.wOxVtvADKfNNYTZjhwmsoG5DZiNH3A3mar2rHCvJsJnkobmlb73qTLsr6ZWRs7umTL4P0
+        createhome: no
+        state: present
+    - name: change share dir owner
+      file:
+        path: /vol0/logs
+        owner: files
+        group: files
+        mode: 0755
+    - name: copy smb.conf
+      template:
+        src: ./conf/files.smb.conf.j2
+        dest: /etc/samba/smb.conf
+        owner: root
+        group: root
+        mode: 0644
+        backup: yes
+      notify:
+      - restart smbd
+      - restart nmbd
+
+  handlers:
+    - name: restart collectd
+      service:
+        name: collectd
+        state: restarted
+    - name: restart smbd
+      service:
+        name: smbd
+        state: restarted
+    - name: restart nmbd
+      service:
+        name: nmbd
+        state: restarted

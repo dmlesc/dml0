@@ -1,0 +1,99 @@
+---
+- hosts: dml-util
+  become: yes
+  vars:
+    install_dir: /home/dml/ilgit/logsbackup
+    repo: /home/dml/ilgit/logsbackup
+    
+  tasks:
+    - name: copy es_backup.js
+      template:
+        src: "{{ repo }}/es_backup.js"
+        dest: "{{ install_dir }}/es_backup.js"
+        owner: dml
+        group: dml
+        mode: 0644
+        force: no
+    - name: copy systemd es_backup.service
+      template:
+        src: ../systemd/es_backup.service.j2
+        dest: /lib/systemd/system/es_backup.service
+        owner: root
+        group: root
+        mode: 0644
+        force: no
+      notify:
+      - enable es_backup.service
+      - start es_backup.service
+
+    - name: copy nr_backup.js
+      template:
+        src: "{{ repo }}/nr_backup.js"
+        dest: "{{ install_dir }}/nr_backup.js"
+        owner: dml
+        group: dml
+        mode: 0644
+        force: no
+    - name: copy systemd nr_backup.service
+      template:
+        src: ../systemd/nr_backup.service.j2
+        dest: /lib/systemd/system/nr_backup.service
+        owner: root
+        group: root
+        mode: 0644
+        force: no
+      notify:
+      - enable nr_backup.service
+      - start nr_backup.service
+
+    - name: copy cdn_backup.js
+      template:
+        src: "{{ repo }}/cdn_backup.js"
+        dest: "{{ install_dir }}/cdn_backup.js"
+        owner: dml
+        group: dml
+        mode: 0644
+        force: no
+    - name: copy systemd cdn_backup.service
+      template:
+        src: ../systemd/cdn_backup.service.j2
+        dest: /lib/systemd/system/cdn_backup.service
+        owner: root
+        group: root
+        mode: 0644
+        force: no
+      notify:
+      - enable cdn_backup.service
+      - start cdn_backup.service
+
+  handlers:
+    - name: enable es_backup.service
+      systemd:
+        daemon_reload: yes
+        name: es_backup
+        enabled: yes
+        masked: no
+    - name: start es_backup.service
+      systemd:
+        name: es_backup
+        state: started
+    - name: enable nr_backup.service
+      systemd:
+        daemon_reload: yes
+        name: nr_backup
+        enabled: yes
+        masked: no
+    - name: start nr_backup.service
+      systemd:
+        name: nr_backup
+        state: started
+    - name: enable cdn_backup.service
+      systemd:
+        daemon_reload: yes
+        name: cdn_backup
+        enabled: yes
+        masked: no
+    - name: start cdn_backup.service
+      systemd:
+        name: cdn_backup
+        state: started

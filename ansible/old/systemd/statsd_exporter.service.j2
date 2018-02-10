@@ -1,0 +1,12 @@
+[Unit]
+Description=statsd_exporter
+After=network.target
+
+[Service]
+User=root
+ExecStart={{ statsd_dir }}/statsd_exporter -statsd.mapping-config={{ statsd_dir }}/statsd_mapping.conf -statsd.add-suffix=false
+WorkingDirectory={{ statsd_dir }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

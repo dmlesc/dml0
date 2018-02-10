@@ -1,0 +1,43 @@
+---
+- hosts: pi0
+  become: yes
+  vars:
+    prom_ver: prometheus-1.7.1.linux-armv7
+    prom_dir: /opt/prometheus
+    prom_data_dir: /opt/prometheus/data
+    
+  tasks:
+    - name: extract prometheus tar.gz
+      unarchive:
+        src: ../tar/{{ prom_ver }}.tar.gz
+        dest: /opt/
+        owner: root
+        group: root
+    - name: rename extracted tar to 'prometheus'
+      command: mv /opt/{{ prom_ver }} {{ prom_dir }}
+    - name: copy prometheus.yml
+      template:
+        src: ../conf/prometheus.yml
+        dest: "{{ prom_dir }}/prometheus.yml"
+        owner: root
+        group: root
+        mode: 0644
+        backup: yes
+    - name: copy systemd prometheus.service
+      template:
+        src: ../systemd/prometheus.service.j2
+        dest: /lib/systemd/system/prometheus.service
+        owner: root
+        group: root
+        mode: 0644
+        backup: no
+    - name: enable prometheus.service
+      systemd:
+        daemon_reload: yes
+        name: prometheus
+        enabled: yes
+        masked: no
+    - name: start prometheus.service
+      systemd:
+        name: prometheus
+        state: started

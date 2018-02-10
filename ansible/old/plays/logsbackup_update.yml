@@ -1,0 +1,95 @@
+---
+- hosts: dml-util
+  become: yes
+  vars:
+    install_dir: /home/dml/ilgit/logsbackup
+    repo: /home/dml/ilgit/logsbackup
+    
+  tasks:
+    - name: copy es_backup.js
+      template:
+        src: "{{ repo }}/es_backup.js"
+        dest: "{{ install_dir }}/es_backup.js"
+        owner: dml
+        group: dml
+        mode: 0644
+        backup: yes
+      notify:
+      - restart es_backup
+    - name: copy conf/es.js
+      template:
+        src: "{{ repo }}/conf/es.js"
+        dest: "{{ install_dir }}/conf/es.js"
+        owner: dml
+        group: dml
+        mode: 0644
+        backup: yes
+      notify:
+      - restart es_backup
+
+    - name: copy nr_backup.js
+      template:
+        src: "{{ repo }}/nr_backup.js"
+        dest: "{{ install_dir }}/nr_backup.js"
+        owner: dml
+        group: dml
+        mode: 0644
+        backup: yes
+      notify:
+      - restart nr_backup
+    - name: copy conf/nr.js
+      template:
+        src: "{{ repo }}/conf/nr.js"
+        dest: "{{ install_dir }}/conf/nr.js"
+        owner: dml
+        group: dml
+        mode: 0644
+        backup: yes
+      notify:
+      - restart nr_backup
+    - name: copy cdn_backup.js
+      template:
+        src: "{{ repo }}/cdn_backup.js"
+        dest: "{{ install_dir }}/cdn_backup.js"
+        owner: dml
+        group: dml
+        mode: 0644
+        backup: yes
+      notify:
+      - restart cdn_backup
+    - name: copy conf/cdn.js
+      template:
+        src: "{{ repo }}/conf/cdn.js"
+        dest: "{{ install_dir }}/conf/cdn.js"
+        owner: dml
+        group: dml
+        mode: 0644
+        backup: yes
+      notify:
+      - restart cdn_backup
+    - name: copy conf/statsd.js
+      template:
+        src: "{{ repo }}/conf/statsd.js"
+        dest: "{{ install_dir }}/conf/statsd.js"
+        owner: dml
+        group: dml
+        mode: 0644
+        backup: yes
+      notify:
+      - restart es_backup
+      - restart nr_backup
+      - restart cdn_backup
+
+  handlers:
+    - name: restart es_backup
+      service:
+        name: es_backup
+        state: restarted
+    - name: restart nr_backup
+      service:
+        name: nr_backup
+        state: restarted
+    - name: restart cdn_backup
+      service:
+        name: cdn_backup
+        state: restarted

@@ -1,0 +1,23 @@
+---
+- hosts: pi0
+  become: yes
+  vars:
+    prom_dir: /opt/prometheus
+    
+  tasks:
+    - name: copy prometheus.yml
+      template:
+        src: ../conf/prometheus.yml
+        dest: "{{ prom_dir }}/prometheus.yml"
+        owner: root
+        group: root
+        mode: 0644
+        backup: yes
+      notify:
+      - restart prometheus
+
+  handlers:
+    - name: restart prometheus
+      service:
+        name: prometheus
+        state: restarted

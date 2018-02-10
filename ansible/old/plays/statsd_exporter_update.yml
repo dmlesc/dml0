@@ -1,0 +1,23 @@
+---
+- hosts: dml-util
+  become: yes
+  vars:
+    statsd_dir: /opt/statsd_exporter
+    
+  tasks:
+    - name: copy statsd_mapping.conf
+      template:
+        src: ../conf/statsd_mapping.1.conf
+        dest: "{{ statsd_dir }}/statsd_mapping.conf"
+        owner: root
+        group: root
+        mode: 0644
+        backup: yes
+      notify:
+      - restart statsd_exporter
+
+  handlers:
+    - name: restart statsd_exporter
+      service:
+        name: statsd_exporter
+        state: restarted
