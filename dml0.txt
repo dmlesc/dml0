@@ -75,7 +75,7 @@ virsh undefine test0
 chgrp libvirtd /vol0/kvm
 chmod g+w /vol0/kvm
 
-nano /etc/network/interfaces 
+nano /etc/network/interfaces
   auto lo
   iface lo inet loopback
 
@@ -97,7 +97,7 @@ virt-install -v \
   --noautoconsole
 
   --network network=default,model=virtio \
-  
+
 virt-clone \
   --original base0 \
   --name trans0 \
@@ -133,7 +133,7 @@ virt-install -v \
   --network bridge=br0,model=virtio \
   --graphics vnc,listen=0.0.0.0 \
   --noautoconsole
-  
+
 virt-install -v \
   --name ctrl0 \
   --vcpus 1 \
@@ -156,7 +156,7 @@ virt-install -v \
   --graphics vnc,listen=0.0.0.0 \
   --noautoconsole
 
-  
+
 =========
  ansible
 =========
@@ -207,7 +207,7 @@ zpool import vol0
 zfs get compression vol0
 zfs get compressratio
 
-zpool iostat vol0 
+zpool iostat vol0
 
 zpool create -f vol0 mirror /dev/disk/by-id/ata-ST500DM002-1BD142_W3T4J4HP /dev/disk/by-id/ata-ST500DM002-1BD142_Z6E39FZS
 
@@ -320,7 +320,7 @@ nano /etc/network/interfaces
   dns-search example.com
   dns-nameservers 192.168.3.45 192.168.8.10
 
-  
+
 =====
  SMB
 =====
@@ -446,7 +446,7 @@ http://fnsn0:9200/_cat/indices?v
 curl -XDELETE 'http://fnsn0:9200/syslog-*?pretty'
 curl -XDELETE 'http://fnsn0:9200/tcpdump-*?pretty'
 
-curl -XGET 'http://fnsn0:9200/_template?pretty' 
+curl -XGET 'http://fnsn0:9200/_template?pretty'
 
 curl -XPUT 'http://fnsn0:9200/_template/syslog?pretty' -H 'Content-Type: application/json' -d'
 {
@@ -483,3 +483,225 @@ curl -XPUT 'http://fnsn0:9200/_template/syslog?pretty' -H 'Content-Type: applica
   }
 }
 '
+
+
+=====
+ lxd
+=====
+
+apt install bridge-utils
+nano /etc/network/interfaces
+  auto br0
+  iface br0 inet dhcp
+  bridge_ports enp3s0
+  bridge_stp off
+  bridge_fd 0
+  bridge_maxwait 0
+
+reboot
+
+apt install zfsutils-linux
+zpool create -f vol0 mirror /dev/disk/by-id/ata-... /dev/disk/by-id/ata-... cache /dev/disk/by-id/ata-...
+zfs set compression=lz4 vol0
+
+apt remove --purge lxd lxd-client
+snap install lxd
+nano ~/.bashrc
+  export PATH=$PATH:/snap/bin:/var/lib/snapd/snap/bin
+
+lxd init
+  Do you want to configure a new storage pool (yes/no) [default=yes]?
+  Name of the new storage pool [default=default]:
+  Name of the storage backend to use (dir, btrfs, ceph, lvm, zfs) [default=zfs]:
+  Create a new ZFS pool (yes/no) [default=yes]? no
+  Name of the existing ZFS pool or dataset: vol0
+  Would you like LXD to be available over the network (yes/no) [default=no]?
+  Would you like stale cached images to be updated automatically (yes/no) [default=yes]?
+  Would you like to create a new network bridge (yes/no) [default=yes]? no
+  LXD has been successfully configured.
+
+lxc profile device set default root size 8GB
+lxc launch ubuntu:16.04 base0
+lxc network attach br0 base0 default eth0
+lxc restart base0
+lxc config set base0 limits.cpu 1
+lxc config set base0 limits.memory 512MB
+lxc config set base0 limits.memory.swap false
+lxc exec base0 bash
+
+apt update
+apt upgrade
+apt autoremove
+
+adduser dml
+visudo
+  dml ALL=(ALL) NOPASSWD: ALL
+deluser ubuntu --remove-home
+su dml
+cd
+mkdir .ssh
+cd .ssh
+nano authorized_keys
+  [put public key]
+exit
+
+apt install htop
+apt install python2.7
+ln -s /usr/bin/python2.7 /usr/bin/python
+
+cd /opt
+wget https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz
+tar xzvf node_exporter-0.15.2.linux-amd64.tar.gz
+nano /lib/systemd/system/node_exporter.service
+  [Unit]
+  Description=node_exporter
+  After=network.target
+
+  [Service]
+  User=root
+  ExecStart=/opt/node_exporter-0.15.2.linux-amd64/node_exporter --no-collector.arp --no-collector.bcache --no-collector.conntrack --no-collector.edac --no-collector.entropy --no-collector.hwmon --no-collector.infiniband --no-collector.ipvs --no-collector.loadavg --no-collector.mdadm --no-collector.netstat --no-collector.sockstat --no-collector.stat --no-collector.textfile --no-collector.time --no-collector.uname --no-collector.vmstat --no-collector.wifi --no-collector.xfs --no-collector.timex
+  WorkingDirectory=/opt/node_exporter-0.15.2.linux-amd64
+  Restart=on-failure
+
+  [Install]
+  WantedBy=multi-user.target
+
+systemctl enable node_exporter
+systemctl daemon-reload
+service node_exporter start
+curl localhost:9100/metrics
+rm node_exporter-0.15.2.linux-amd64.tar.gz
+exit
+
+lxc stop base0
+
+
+lxc copy base0 prmths0 --container-only
+lxc config device add prmths0 root disk pool=default path=/ size=50GB
+lxc start prmths0
+lxc config set prmths0 limits.cpu 2
+lxc config set prmths0 limits.memory 1GB
+lxc start prmths0
+lxc exec prmths0 bash
+
+deluser ubuntu --remove-home
+cd /opt
+wget https://github.com/prometheus/prometheus/releases/download/v2.1.0/prometheus-2.1.0.linux-amd64.tar.gz
+tar xzvf prometheus-2.1.0.linux-amd64.tar.gz
+cd prometheus-2.1.0.linux-amd64
+nano prometheus.yml
+  ---
+
+  global:
+    scrape_interval:     10s
+    evaluation_interval: 10s
+    external_labels:
+        monitor: 'blak'
+
+  scrape_configs:
+    - job_name: 'prometheus'
+      static_configs:
+        - targets: ['blak0:9090']
+    - job_name: 'node'
+      static_configs:
+        - targets:
+          - prmths0:9100
+          - vis0:9100
+          - nginx0:9100
+
+nano /lib/systemd/system/prometheus.service
+  [Unit]
+  Description=prometheus
+  After=network.target
+
+  [Service]
+  User=root
+  ExecStart=/opt/prometheus-2.1.0.linux-amd64/prometheus --storage.tsdb.retention=365d
+  WorkingDirectory=/opt/prometheus-2.1.0.linux-amd64
+  Restart=on-failure
+
+  [Install]
+  WantedBy=multi-user.target
+
+systemctl enable prometheus
+systemctl daemon-reload
+service prometheus start
+exit
+
+
+lxc copy base0 vis0 --container-only
+lxc config set vis0 limits.cpu 2
+lxc config set vis0 limits.memory 1GB
+lxc start vis0
+lxc exec vis0 bash
+
+deluser ubuntu --remove-home
+nano /etc/apt/sources.d.list/grafana.list
+  deb https://packagecloud.io/grafana/stable/debian/ jessie main
+curl https://packagecloud.io/gpg.key | sudo apt-key add -
+apt update
+apt install grafana
+systemctl enable grafana-server
+systemctl daemon-reload
+service grafana-server start
+exit
+
+[configure grafana]
+
+
+lxc copy base0 nginx0 --container-only
+lxc start nginx0
+lxc exec nginx0 bash
+
+deluser ubuntu --remove-home
+
+
+=====================
+ Container Migration
+=====================
+https://stgraber.org/2016/04/12/lxd-2-0-remote-hosts-and-container-migration-612/
+
+Remote
+  lxc config set core.https_address [::]:8443
+  lxc config set core.trust_password something-secure
+
+Local
+  lxc config set core.https_address [::]:8443
+  lxc remote add mac 192.168.2.9
+  lxc remote list
+  lxc remote get-default
+
+  lxc move base0 mac:
+  lxc move prmths0 mac:
+  lxc move vis0 mac:
+  lxc move nginx0 mac:
+
+
+===========
+ handbrake
+===========
+
+add-apt-repository ppa:stebbins/handbrake-releases
+apt update
+apt install handbrake-gtk
+apt install handbrake-cli
+
+HandBrakeCLI -Z "Apple 720p30 Surround" -i TheAmericans-2013-S01E02.avi -o TheAmericans-2013-S01E02.m4v
+HandBrakeCLI -Z "Apple 540p30 Surround" -i TheAmericans-2013-S01E03.avi -o TheAmericans-2013-S01E03.m4v
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rsync --progress -a ~/git/sync /mnt/test/
+rsync --progress -a /mnt/test/sync ~/git/
