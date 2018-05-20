@@ -1,0 +1,12 @@
+=========
+ grafana
+=========
+
+nano /etc/apt/sources.d.list/grafana.list
+  deb https://packagecloud.io/grafana/stable/debian/ jessie main
+curl https://packagecloud.io/gpg.key | sudo apt-key add -
+apt update
+apt install grafana
+systemctl enable grafana-server
+systemctl daemon-reload
+service grafana-server start

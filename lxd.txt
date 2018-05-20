@@ -1,0 +1,102 @@
+=====
+ lxd
+=====
+
+apt install bridge-utils
+nano /etc/network/interfaces
+  auto br0
+  iface br0 inet dhcp
+  bridge_ports enp3s0
+  bridge_stp off
+  bridge_fd 0
+  bridge_maxwait 0
+
+reboot
+
+apt install zfsutils-linux
+zpool create -f vol0 mirror /dev/disk/by-id/ata-... /dev/disk/by-id/ata-... cache /dev/disk/by-id/ata-...
+zfs set compression=lz4 vol0
+
+apt remove --purge lxd lxd-client
+snap install lxd
+nano ~/.bashrc
+  export PATH=$PATH:/snap/bin:/var/lib/snapd/snap/bin
+
+lxd init
+
+#lxc profile device set default root size 8GB
+#lxc config set base limits.memory.swap false
+#lxc network attach br0 base default eth0
+
+lxc launch ubuntu:18.04 base
+lxc config set base limits.cpu 1
+lxc config set base limits.memory 512MB
+lxc exec base bash
+
+apt update
+apt upgrade
+apt autoremove
+
+adduser dml
+visudo
+  dml ALL=(ALL) NOPASSWD: ALL
+deluser ubuntu --remove-home
+su dml
+cd
+mkdir .ssh
+cd .ssh
+nano authorized_keys
+  [put public key]
+chmod 600 authorized_keys
+exit
+
+
+*** install node_exporter ***
+
+exit
+
+lxc stop base
+
+#lxc config device add prmths0 root disk pool=default path=/ size=50GB
+
+lxc copy base0 prmths0 --container-only
+lxc start prmths0
+lxc config set prmths0 limits.cpu 2
+lxc config set prmths0 limits.memory 1GB
+lxc start prmths0
+lxc exec prmths0 bash
+
+deluser ubuntu --remove-home
+
+*** install prometheus ***
+
+lxc copy base0 vis0 --container-only
+lxc config set vis0 limits.cpu 2
+lxc config set vis0 limits.memory 1GB
+lxc start vis0
+lxc exec vis0 bash
+
+deluser ubuntu --remove-home
+
+*** install grafana ***
+
+
+=====================
+ Container Migration
+=====================
+https://stgraber.org/2016/04/12/lxd-2-0-remote-hosts-and-container-migration-612/
+
+Remote
+  lxc config set core.https_address [::]:8443
+  lxc config set core.trust_password something-secure
+
+Local
+  lxc config set core.https_address [::]:8443
+  lxc remote add mac 192.168.2.9
+  lxc remote list
+  lxc remote get-default
+
+  lxc move base0 mac:
+  lxc move prmths0 mac:
+  lxc move vis0 mac:
+  lxc move nginx0 mac:

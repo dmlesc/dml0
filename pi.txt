@@ -1,0 +1,23 @@
+====
+ PI
+====
+
+adduser dml
+visudo
+  dml   ALL = NOPASSWD: ALL
+mkdir -p /mnt/downloads
+nano /etc/hosts
+  192.168.2.48    trans0
+nano /etc/fstab
+  //trans0/downloads /mnt/downloads cifs uid=pi,gid=pi,credentials=/home/pi/.creds,iocharset=utf8,sec=ntlm 0 0
+nano /home/pi/.creds
+  username=
+  password=
+chmod 600 /home/pi/.creds
+
+
+wget https://github.com/fg2it/grafana-on-raspberry/releases/download/v4.4.3/grafana_4.4.3_armhf.deb
+sudo apt install grafana_4.4.3_armhf.deb
+sudo /bin/systemctl daemon-reload
+sudo /bin/systemctl enable grafana-server
+sudo /bin/systemctl start grafana-server

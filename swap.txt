@@ -1,0 +1,15 @@
+======
+ SWAP
+======
+
+sudo mkdir /mnt/md0/swap
+cd /mnt/md0/swap
+sudo fallocate -l 32g /mnt/md0/swap/32GiB.swap
+sudo chmod 600 /mnt/md0/swap/32GiB.swap
+sudo mkswap /mnt/md0/swap/32GiB.swap
+sudo swapon /mnt/md0/swap/32GiB.swap
+echo '/mnt/md0/swap/32GiB.swap swap swap defaults 0 0' | sudo tee -a /etc/fstab
+
+lvremove /dev/mapper/dml--vg-swap_1
+lvextend /dev/mapper/dml--vg-root /dev/sdk5
+resize2fs /dev/mapper/dml--vg-root

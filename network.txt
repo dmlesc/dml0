@@ -1,0 +1,83 @@
+=========
+ network
+=========
+
+=======
+ 16.04
+=======
+
+--- STATIC IP ---
+
+nano /etc/network/interfaces
+  auto enp3s0
+  iface enp3s0 inet static
+  address 10.0.0.10
+  netmask 255.255.255.0
+
+  gateway 192.168.3.1
+  dns-search example.com
+  dns-nameservers 192.168.3.45 192.168.8.10
+
+
+--- BRIDGE ---
+
+apt install bridge-utils
+
+DHCP
+
+nano /etc/network/interfaces
+  auto lo
+  iface lo inet loopback
+
+  auto br0
+  iface br0 inet dhcp
+  bridge_ports eth0
+  bridge_stp off
+  bridge_fd 0
+  bridge_maxwait 0
+
+
+
+=======
+ 18.04
+=======
+
+--- BRIDGE ---
+
+apt install bridge-utils
+nano /etc/netplan/01-network-manager-all.yaml
+nano /etc/netplan/50-cloud-init.yaml
+#STATIC
+  network:
+    version: 2
+    renderer: networkd
+    ethernets:
+      eno1:
+        dhcp4: no
+        dhcp6: no
+
+    bridges:
+      br0:
+        interfaces: [eno1]
+        dhcp4: true
+        addresses: [10.1.0.111/22]
+        gateway4: 10.1.0.1
+        nameservers:
+          addresses: [10.1.100.10, 10.1.100.11]
+        dhcp6: no
+
+#DHCP
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s25:
+      dhcp4: true
+      dhcp6: no
+      optional: true
+
+  bridges:
+    br0:
+      interfaces: [enp0s25]
+      dhcp4: true
+      dhcp6: no
