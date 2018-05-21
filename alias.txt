@@ -1,0 +1,2 @@
+alias sb='ssh-agent bash'
+alias sa='ssh-add ~/.ssh/id_dml-home'

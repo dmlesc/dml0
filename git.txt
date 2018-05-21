@@ -1,0 +1,43 @@
+=====
+ Git
+=====
+
+git init
+git status
+git add filename
+git diff filename
+git commit -m "message"
+git log
+git show HEAD
+git checkout HEAD filename
+git reset HEAD filename
+git reset SHA
+git branch
+
+git log --graph --oneline -all --decorate
+git config --global alias.lga "log --graph --oneline --all --decorate"
+
+git mergetool kdiff3
+
+git cat-file
+git hash-object
+git count-objects
+
+Git is a 
+   Stupid Content Tracker
+   Persistent Map (of keys and values)
+
+echo "Apple Pie" | git hash-object --stdin
+
+git cat-file <hash> -t #type
+git cat-file <hash> -p #prints
+
+Tag - a branch that doesn't move
+
+git log -1
+git push
+git show-ref master
+
+smartgit
+
+atlassian sourcetree
