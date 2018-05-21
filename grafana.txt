@@ -2,8 +2,8 @@
  grafana
 =========
 
-nano /etc/apt/sources.d.list/grafana.list
-  deb https://packagecloud.io/grafana/stable/debian/ jessie main
+nano /etc/apt/sources.list.d/grafana.list
+  deb https://packagecloud.io/grafana/stable/debian/ stretch main
 curl https://packagecloud.io/gpg.key | sudo apt-key add -
 apt update
 apt install grafana

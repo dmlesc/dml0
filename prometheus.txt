@@ -6,6 +6,7 @@ cd /opt
 wget https://github.com/prometheus/prometheus/releases/download/v2.1.0/prometheus-2.1.0.linux-amd64.tar.gz
 tar xzvf prometheus-2.1.0.linux-amd64.tar.gz
 cd prometheus-2.1.0.linux-amd64
+mv prometheus.yml prometheus.yml.bak
 nano prometheus.yml
   ---
 
@@ -13,18 +14,16 @@ nano prometheus.yml
     scrape_interval:     10s
     evaluation_interval: 10s
     external_labels:
-        monitor: 'blak'
+        monitor: 'prom'
 
   scrape_configs:
     - job_name: 'prometheus'
       static_configs:
-        - targets: ['blak0:9090']
+        - targets: ['prom:9090']
     - job_name: 'node'
       static_configs:
         - targets:
-          - prmths0:9100
-          - vis0:9100
-          - nginx0:9100
+          - prom:9100
 
 nano /lib/systemd/system/prometheus.service
   [Unit]
@@ -44,4 +43,5 @@ systemctl enable prometheus
 systemctl daemon-reload
 service prometheus start
 
+cd ..
 rm prometheus-2.1.0.linux-amd64.tar.gz

@@ -59,24 +59,28 @@ lxc stop base
 
 #lxc config device add prmths0 root disk pool=default path=/ size=50GB
 
-lxc copy base0 prmths0 --container-only
-lxc start prmths0
-lxc config set prmths0 limits.cpu 2
-lxc config set prmths0 limits.memory 1GB
-lxc start prmths0
-lxc exec prmths0 bash
+lxc copy base prom --container-only
+lxc config set prom limits.cpu 2
+lxc config set prom limits.memory 1GB
+lxc start prom
+lxc exec prom bash
 
 deluser ubuntu --remove-home
+nano /etc/hosts
+  127.0.1.1 prom
 
 *** install prometheus ***
 
-lxc copy base0 vis0 --container-only
-lxc config set vis0 limits.cpu 2
-lxc config set vis0 limits.memory 1GB
-lxc start vis0
-lxc exec vis0 bash
+lxc copy base viz --container-only
+lxc config set viz limits.cpu 2
+lxc config set viz limits.memory 1GB
+lxc start viz
+lxc exec viz bash
 
 deluser ubuntu --remove-home
+nano /etc/hosts
+  127.0.1.1 viz
+  192.168.2.79  prom
 
 *** install grafana ***
 
