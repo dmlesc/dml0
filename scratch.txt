@@ -10,129 +10,53 @@ books
   Twelvth Planet
   Fractals Form, Chance, and Dimension
   World Revolution - Nesta Webster
+  The Biology of Belief - Bruce Lipton
+  Hermann Hesse - Journey to the East
+  The Psychedelic Experience: A Manual Based on the Tibetan Book of the Dead
+  The Doors of Perception and Heaven and Hell
+  Confessions of an Economic Hit Man
+  Mark Booth - The Secret History of the World
+  The Dimensions of Paradise
+  How to get away with murder in america - evan wright
+  the cia as organized crime - doug valentine
+  kingpin - richard straton
+  brotherhood of eternal love
+  is god a mathematician - mario livio
+  technocracy inc
+  the lost science of money
+  the history of chinese philosophy - fun hu long
+  the essence of budhism
+  our mathematical universe
+  narconomics
+  american desperado
+  this is your country on drugs
+  be here now - ram dass
+  autobiography of a yogi
+  ramakrishna and his disciples
+  Cosmic Consciousness: A Study in the Evolution of the Human Mind
+  The Wisdom of Insecurity: A Message for an Age of Anxiety - Alan Watts
+  The Book: On the Taboo Against Knowing Who You Are - Alan Watts
+  Crypto: How the Code Rebels Beat the Government – Saving Privacy in the Digital Age
+  Cryptonomicon
+  Cypherpunks: Freedom and the Future of the Internet
+  The Crypto Anarchist Manifesto
+  Atomic Suicide - walter russell
+  The Creature from Jekyll Island
+  The Biggest Secret
+  Soma Divine Mushroom of Immortality
+  Data Visualization with JavaScript
 
-To actually cast a sound shadow of the harmonics of the heart on the thymus gland
-And the thymus is this lovely little catchers mitt ... the thy am us, mea culpa
-mea culpa. Which doesn't mean through my fault but means I take responsibility
-for, I thump my thymus. Because it's the sounds of the heart where you take
-responsibility for the way your emotion fabricated the shape of the
-magnetic field which is your world
 
 sufi heart with wings
-
 philotaxis
-
 irs publication 6209
-
 Adam Weishaupt
-
-"As far as  the laws of mathematics refer to reality, they are not certain, and as far as they are certain, they do not refer to reality." -Albert Einstein
-
-Soma Divine Mushroom of Immortality
-
-Hermann Hesse - Journey to the East
-The Psychedelic Experience: A Manual Based on the Tibetan Book of the Dead
-The Doors of Perception and Heaven and Hell
-
-Culture is a plot against the expansion of conscienceness
-
-Nobody needs to guard the truth from inspection
-Nobody needs to tell you you can't look behind the stage
-
-
 Samael Aun Weor
 
-Language was designed to hide feelings
-
-The Biology of Belief - Bruce Lipton
-
-
 Alan Watts
-  agnosia - dark knowledge of god
-    The knowledge of god in the cloud of unknowing
-      Anonymous 14th century English monk -> Dionysus Theriopogite (5th or 6th century Syrian monk) -> Pofery -> Plotinus (neo platonist) -> Alexandria
-
-All water has a perfect memory and is forever trying to get back to where it was.
-Nothing is softer or more flexible than water, yet nothing can resist it.
-To have faith is to trust yourself to the water. When you swim you don't grab hold of the water, because if you do you will sink and drown. Instead you relax, and float. Alan Watts
-Water does not resist. Water flows. When you plunge your hand into it, all you feel is a caress. Water is not a solid wall, it will not stop you. But water always goes where it wants to go, and nothing in the end can stand against it. Water is patient. Dripping water wears away a stone. Remember that, my child. Remember you are half water. If you can't go through an obstacle, go around it. Water does.
-Human nature is like water. It takes the shape of its container.
-
-
-The Creature from Jekyll Island
-The Biggest Secret
-
-When an honest mana discovers he is mistaken,
-he will either cease being mistaken,
-or cease being honest.
-
-Confessions of an Economic Hit Man
-Mark Booth - The Secret History of the World
-The Dimensions of Paradise
-How to get away with murder in america - evan wright
-the cia as organized crime - doug valentine
-kingpin - richard straton
-brotherhood of eternal love
-is god a mathematician - mario livio
-technocracy inc
-the lost science of money
-the history of chinese philosophy - fun hu long
-the essence of budhism
-
-our mathematical universe
-narconomics
-american desperado
-this is your country on drugs
-
-be here now - ram dass
-autobiography of a yogi
-ramakrishna and his disciples
-Cosmic Consciousness: A Study in the Evolution of the Human Mind
-
-The Wisdom of Insecurity: A Message for an Age of Anxiety - Alan Watts
-The Book: On the Taboo Against Knowing Who You Are - Alan Watts
-
-Crypto: How the Code Rebels Beat the Government – Saving Privacy in the Digital Age
-Cryptonomicon
-Cypherpunks: Freedom and the Future of the Internet
-The Crypto Anarchist Manifesto
-
-
-maintainability, reliability or compactness. Reuse, simplification, generalization, orthogonality: this is the Zen of Unix in action.
-Do as little work as possible. Let the data shape the code. Lean on your tools. Separate mechanism from policy. Expert Unix programmers learn to see possibilities like these quickly and automatically. Constructive laziness is one of the cardinal virtues of the master programmer.
-
-
-a symbol should be the result of knowledge
-the understanding the awareness and then you have the symbol surface
-having someone learn symbols
-and then distributing a very strategically limited amount of meaning
-to that person does not give them knowledge
-they perceive that they are getting knowledge
-they are looking for the end result
-therefore you are dependant on the meaning that is given to you
-the idea of indoctrinating somebody with an oath is absolute evil
-why? because they are declaring they do not want you to be a creative being
-and extract your own meaning
+  agnosia - dark knowledge of god, the knowledge of god in the cloud of unknowing
+    Anonymous 14th century English monk -> Dionysus Theriopogite (5th or 6th century
+    Syrian monk) -> Pofery -> Plotinus (neo platonist) -> Alexandria
 
 club bilderberg
-
-The author holds that our school curricula, by stripping
-mathematics of its cultural content and leaving a bare skeleton
-of technicalities, have repelled many a fine mind. It is the aim of
-this book to restore this cultural content and present the evolution
-of number as the profoundly human story which it is.
-
-
-dircolors -p > ~/.dircolors
-
-Atomic Suicide - walter russell
-Crypto: How the Code Rebels Beat the Government Saving Privacy in the Digital Age
-
 the careful massacre of the bourgeousis
-
-
-
-
-git remote set-url origin git@github.com:dmlesc/effansin.git
-
-Dedicated to deduplicating machine sprawl and hyperconverging all the workloads in the clouds or on the premises.

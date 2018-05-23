@@ -1,7 +1,5 @@
 
-all in one
-  memory upgrade
-  bonny music
+bonny music
 
 nginx_exporter
   proxy
