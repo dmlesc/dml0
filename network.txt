@@ -3,42 +3,6 @@
 =========
 
 =======
- 16.04
-=======
-
---- STATIC IP ---
-
-nano /etc/network/interfaces
-  auto enp3s0
-  iface enp3s0 inet static
-  address 10.0.0.10
-  netmask 255.255.255.0
-
-  gateway 192.168.3.1
-  dns-search example.com
-  dns-nameservers 192.168.3.45 192.168.8.10
-
-
---- BRIDGE ---
-
-apt install bridge-utils
-
-DHCP
-
-nano /etc/network/interfaces
-  auto lo
-  iface lo inet loopback
-
-  auto br0
-  iface br0 inet dhcp
-  bridge_ports eth0
-  bridge_stp off
-  bridge_fd 0
-  bridge_maxwait 0
-
-
-
-=======
  18.04
 =======
 
@@ -71,13 +35,84 @@ network:
   version: 2
   renderer: networkd
   ethernets:
-    enp0s25:
+    eno1:
       dhcp4: true
       dhcp6: no
       optional: true
 
   bridges:
     br0:
-      interfaces: [enp0s25]
+      interfaces: [eno1]
       dhcp4: true
       dhcp6: no
+
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eno1:
+      dhcp4: true
+      dhcp6: no
+      optional: true
+    enp3s0f0:
+      dhcp4: true
+      dhcp6: no
+      optional: true
+    enp3s0f1:
+      dhcp4: true
+      dhcp6: no
+      optional: true
+    enp4s0f0:
+      dhcp4: true
+      dhcp6: no
+      optional: true
+    enp4s0f1:
+      dhcp4: true
+      dhcp6: no
+      optional: true
+
+  bridges:
+    br0:
+      interfaces: [eno1, enp3s0f0, enp3s0f1, enp4s0f0, enp4s0f1]
+      dhcp4: true
+      dhcp6: no
+
+
+nano /lib/systemd/system/systemd-networkd-wait-online.service
+  ExecStart=/lib/systemd/systemd-networkd-wait-online --timeout=1
+
+
+=======
+ 16.04
+=======
+
+--- STATIC IP ---
+
+nano /etc/network/interfaces
+  auto enp3s0
+  iface enp3s0 inet static
+  address 10.0.0.10
+  netmask 255.255.255.0
+
+  gateway 192.168.3.1
+  dns-search example.com
+  dns-nameservers 192.168.3.45 192.168.8.10
+
+
+--- BRIDGE ---
+
+apt install bridge-utils
+
+DHCP
+
+nano /etc/network/interfaces
+  auto lo
+  iface lo inet loopback
+
+  auto br0
+  iface br0 inet dhcp
+  bridge_ports eth0
+  bridge_stp off
+  bridge_fd 0
+  bridge_maxwait 0

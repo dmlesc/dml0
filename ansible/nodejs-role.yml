@@ -1,7 +1,0 @@
----
-# file: nodejs-role.yml
-
-- hosts: nodejs
-  become: true
-  roles:
-    - nodejs

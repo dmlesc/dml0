@@ -1,0 +1,99 @@
+https://docs.docker.com/install/linux/docker-ce/ubuntu
+
+
+apt remove docker docker-engine docker.io
+apt install apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+apt-key fingerprint 0EBFCD88
+
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt update
+apt install docker-ce
+docker --version
+  Docker version 18.05.0-ce, build f150324
+
+apt install docker-compose
+docker-compose --version
+  docker-compose version 1.17.1, build unknown
+
+mkdir ~/workspace
+cd ~/workspace
+
+git clone git@github.com:digicert/digicert_com.git
+git clone git@github.com:digicert/web_content.git
+git clone git@github.com:digicert/digicert_docker.git
+
+cd digicert_docker
+docker-compose up
+Ctrl-C
+
+sudo chown 27:27 ~/workspace/.digisql_data/data
+sudo chown dml:dml ~/workspace/.digisql_data/
+
+docker-compose up
+./refresh_schema.sh
+
+Ctrl-C
+docker-compose up -d
+
+http://splunklocal:8000
+http://127.0.0.1:8000
+  user: admin
+  pass: nothing
+
+https://localhost.digicert.com/account/login.php
+  user: john.smith@digicert.com
+  pass: nothing
+
+
+
+
+
+=====
+ LXD
+=====
+
+lxc copy base docker --container-only -c security.nesting=true
+lxc config set docker limits.cpu 2
+lxc config set docker limits.memory 2GB
+lxc start docker
+lxc exec docker bash
+
+[install docker]
+
+mkdir -p /workspace/digicert_docker
+exit
+
+cd /home/dml/workspace/digicert_docker
+tar cf - . | lxc exec docker -- tar xvf - -C /workspace/digicert_docker
+
+lxc exec docker bash
+
+cd /workspace
+chown -R root:root digicert_docker/
+cd digicert_docker
+cp docker-compose.yml splunk-only.yml
+nano splunk-only.yml
+  version: '2'
+
+  services:
+    splunk:
+      image: digidock.dev.tgp.digicert.com:5000/splunk
+      hostname: splunklocal
+      environment:
+        SPLUNK_START_ARGS: --accept-license --answer-yes
+        #SPLUNK_ADD: tcp 1514
+        SPLUNK_USER: root
+        SPLUNK_CMD: 'edit user admin -password nothing -role admin -auth admin:changeme'
+        OPTIMISTIC_ABOUT_FILE_LOCKING: 1
+      network_mode: bridge
+      ports:
+        - "8000:8000"
+        #- "1514:1514"
+        - "2514:2514"
+        - "8088:8088"
+
+docker-compose -f splunk-only.yml up
+docker-compose -f splunk-only.yml up -d
+
+docker exec -it digicertdocker_splunk_1 /bin/bash

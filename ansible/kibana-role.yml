@@ -1,7 +1,0 @@
----
-# file: kibana-role.yml
-
-- hosts: kibana
-  become: true
-  roles:
-    - kibana

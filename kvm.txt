@@ -3,6 +3,54 @@
 =====
 
 =======
+ 18.04
+=======
+
+apt install qemu-kvm libvirt-bin ubuntu-vm-builder virtinst
+
+virt-install -v \
+  --name dml-win0 \
+  --vcpus 2 \
+  --memory 4096 \
+  --disk path=/vol0/kvm/dml-win.img \
+  --network bridge=br0 \
+  --import \
+  --graphics vnc,listen=0.0.0.0 \
+  --noautoconsole
+
+
+virsh net-list --all
+
+brctl show
+
+virsh help network
+
+
+nano passthrougth.xml
+  <network>
+    <name>passthrough</name>
+    <forward mode='passthrough' managed='yes'>
+      <pf dev='eth3'/>
+    </forward>
+  </network>
+
+virsh net-define passthrough.xml
+virsh net-autostart passthrough
+virsh net-start passthrough
+
+
+virsh edit opnsense
+  <interface type='network'>
+    <source network='passthrough'/>
+  </interface>
+
+
+
+virsh dumpxml opnsense |grep interface -b5
+
+
+
+=======
  16.04
 =======
 
@@ -139,21 +187,3 @@ virsh detach-device win /vol0/kvm/slim.xml
 
 virsh attach-device win /vol0/kvm/mimosa.xml
 virsh detach-device win /vol0/kvm/mimosa.xml
-
-
-
-=======
- 18.04
-=======
-
-apt install qemu-kvm libvirt-bin ubuntu-vm-builder virtinst
-
-virt-install -v \
-  --name dml-win0 \
-  --vcpus 2 \
-  --memory 4096 \
-  --disk path=/vol0/kvm/dml-win.img \
-  --network bridge=br0 \
-  --import \
-  --graphics vnc,listen=0.0.0.0 \
-  --noautoconsole

@@ -18,6 +18,8 @@ apt install handbrake-cli
 HandBrakeCLI -Z "Apple 720p30 Surround" -i TheAmericans-2013-S01E02.avi -o TheAmericans-2013-S01E02.m4v
 HandBrakeCLI -Z "Apple 540p30 Surround" -i TheAmericans-S03E01.avi -o TheAmericans-S03E01.m4v
 
+HandBrakeCLI -Z "Apple 720p30 Surround" -i test.mp4 -o test.m4v
+
 
 apt install lm-sensors
 sensors-detect

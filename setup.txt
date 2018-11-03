@@ -1,0 +1,276 @@
+https://my.edgecast.com/uploads/ubers/1/docs/en-US/webhelp/w/CDNHelpCenter/default.htm#Raw_Log_Files/Raw_Log_File_Field_Definitions.htm
+
+
+
+
+sudo bash
+snap install lxd
+apt install zfsutils-linux
+
+lxd init
+  all defaults
+
+lxc launch ubuntu:18.04 base
+lxc config set base limits.cpu 1
+lxc config set base limits.memory 1GB
+lxc exec base bash
+
+apt update
+apt upgrade
+apt autoremove
+exit
+
+lxc restart base
+lxc exec base bash
+
+[install node_exporter]
+exit
+
+lxc stop base
+
+lxc copy base mon --container-only
+lxc config set mon limits.cpu 2
+lxc config set mon limits.memory 2GB
+lxc start mon
+lxc exec mon bash
+
+[install prometheus]
+
+[install grafana]
+
+[import grafana dashboards]
+
+
+lxc storage create data zfs size=500GB
+zfs set compression=lz4 data
+
+sysctl -w vm.max_map_count=262144
+sysctl vm.max_map_count
+nano /etc/sysctl.conf
+  vm.max_map_count=262144
+
+lxc copy base es --container-only -s data
+lxc config set es limits.cpu 4
+lxc config set es limits.memory 8GB
+lxc start es
+lxc exec es bash
+
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
+apt update
+apt install apt-transport-https
+apt install default-jre
+apt install elasticsearch
+
+cd /etc/elasticsearch
+cp jvm.options jvm.options.bak
+nano jvm.options
+  -Xms4g
+  -Xmx4g
+
+nano elasticsearch.yml
+  network.host: 0.0.0.0
+
+systemctl enable elasticsearch
+service elasticsearch start
+exit
+
+
+lxc exec mon bash
+
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
+apt update
+apt install apt-transport-https
+apt install default-jre
+apt install kibana
+
+nano /etc/kibana/kibana.yml
+  server.host: 0.0.0.0
+  elasticsearch.url: "http://10.241.204.224:9200"
+  elasticsearch.requestTimeout: 300000
+
+systemctl enable kibana
+service kibana start
+exit
+
+
+
+
+gunzip -k wac_2BE4_20180731_0002.log.gz
+  6 min to extract 5G file
+
+split -l 4000000 -d -a 3 --verbose wac_2BE4_20180817_0063.log split0/wac_2BE4_20180817_0063.log.
+split -l 4000000 -d -a 3 --verbose wac_2BE4_20180817_0063.log wac_2BE4_20180817_0063.log.
+  4 min to split 82G file into 1G files
+
+
+curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+sudo apt install -y nodejs
+
+npm init
+npm install elasticsearch
+
+
+node -max_old_space_size=2048 edge_anal_logs.js 0
+node -max_old_space_size=2048 edge_anal_logs.js 1
+
+
+#Fields:,timestamp,time-taken,c-ip,filesize,s-ip,s-port,sc-status,sc-bytes,cs-method,cs-uri-stem,-,rs-duration,rs-bytes,c-referrer,c-user-agent,customer-id,x-ec_custom-1
+1532908800,0,54.182.234.5,471,192.229.157.81,80,TCP_HIT/200,812,GET,http://ocsp.digicert.com/802BE4/ocsp/MFEwTzBNMEswSTAJBgUrDgMCGgUABBRJ9L2KGL92BpjF3kAtaDtxauTmhgQUPdNQpdagre7zSmAKZdMh1Pj41g8CEA2UtcZoAH2u0%2FhhVxJ%2Fd1s%3D,-,0,501,"-","-",11236,"-",
+
+
+
+curl 10.241.204.224:9200/_cat/indices?v
+curl 10.241.204.224:9200/_cat/shards?v
+
+
+
+
+lxc copy base etl --container-only -s data
+lxc config set etl limits.cpu 1
+lxc config set etl limits.memory 2GB
+lxc start etl
+lxc exec etl bash
+
+adduser dml
+visudo
+  dml ALL=(ALL) NOPASSWD: ALL
+deluser ubuntu --remove-home
+su dml
+cd
+mkdir .ssh
+cd .ssh
+nano authorized_keys
+  [put public key]
+chmod 600 authorized_keys
+exit
+
+apt install samba
+
+cd /etc/samba/
+mv smb.conf smb.conf.bak
+nano smb.conf
+  [global]
+    workgroup = WORKGROUP
+    server string = %h server (Samba, Ubuntu)
+    dns proxy = no
+    log file = /var/log/samba/log.%m
+    max log size = 1000
+    syslog = 0
+    panic action = /usr/share/samba/panic-action %d
+    server role = standalone server
+    passdb backend = tdbsam
+    obey pam restrictions = yes
+    unix password sync = yes
+    passwd program = /usr/bin/passwd %u
+    passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+    pam password change = no
+    map to guest = bad user
+    usershare allow guests = no
+
+  [git]
+    path = /home/dml/git
+    valid users = dml
+    browsable = no
+    guest ok = no
+    writable = yes
+    create mask = 0644
+
+smbpasswd -a dml
+mkdir /home/dml/git
+chown dml:dml /home/dml/git
+
+service smbd restart
+service nmbd restart
+
+
+sftp david.lurth@digicert.com@rsync.vny.2BE4.phicdn.net
+
+
+mv processed/wac_2BE4_20180731_0002* split0/
+mv processed/wac_2BE4_20180731_0003* split0/
+mv processed/wac_2BE4_20180731_0004.log.00* split0/
+mv processed/wac_2BE4_20180731_0004.log.010 split0/
+mv processed/wac_2BE4_20180731_0004.log.011 split0/
+mv processed/wac_2BE4_20180731_0004.log.012 split0/
+mv processed/wac_2BE4_20180731_0004.log.013 split0/
+mv processed/wac_2BE4_20180731_0004.log.014 split0/
+mv processed/wac_2BE4_20180731_0004.log.015 split0/
+mv processed/* split1/
+
+
+
+
+
+
+npm install ssh2-sftp-client --save
+
+
+
+head wac_2BE4_20180808_0016.log.050 | awk -F'/' '{ print $2 }'
+
+head wac_2BE4_20180808_0016.log.050 | awk -F' ' '{ print $7 }'
+
+NONE
+TCP_MISS
+TCP_EXPIRED_MISS
+TCP_EXPIRED_HIT
+TCP_HIT
+
+
+gunzip -kc wac_2BE4_20180809_0042.log.gz | grep " \(NONE\|TCP_MISS\|TCP_EXPIRED_MISS\|TCP_EXPIRED_HIT\|TCP_HIT\)\/[4-5][[:digit:]][[:digit:]] "
+gunzip -kc wac_2BE4_20180817_0063.log.gz | grep " \(NONE\|TCP_MISS\|TCP_EXPIRED_MISS\|TCP_EXPIRED_HIT\|TCP_HIT\)\/[4-5][[:digit:]][[:digit:]] " > wac_2BE4_20180817_0063.log
+
+
+
+lxc launch images:centos/7/amd64 centos-base
+lxc config set centos-base limits.cpu 1
+lxc config set centos-base limits.memory 1GB
+lxc exec centos-base bash
+
+yum update
+yum upgrade
+yum install wget
+yum install nano
+
+[install node_exporter]
+
+exit
+
+lxc copy centos-base salt-master --container-only
+lxc start salt-master
+lxc exec salt-master bash
+
+yum install https://repo.saltstack.com/yum/redhat/salt-repo-latest-2.el7.noarch.rpm
+yum clean expire-cache
+yum install salt-master
+exit
+
+
+lxc copy centos-base splunk --container-only
+lxc config set splunk limits.cpu 2
+lxc config set splunk limits.memory 2GB
+lxc start splunk
+lxc exec splunk bash
+
+yum install https://repo.saltstack.com/yum/redhat/salt-repo-latest-2.el7.noarch.rpm
+yum install salt-minion
+
+
+
+npm install splunk-logging --save
+
+
+
+Splunk > Settings > Data inputs > HTTP Event Collector
+  New Token
+    Name: edgecast_etl
+    Source type: _json
+    Index: main
+
+  Global Settings
+    Enable
+
+
+index="main" source="edgecast"

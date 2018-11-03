@@ -1,7 +1,0 @@
----
-# file: common.yml
-
-- hosts: fnsn
-  become: true
-  roles:
-    - common

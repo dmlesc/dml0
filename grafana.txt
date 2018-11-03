@@ -6,7 +6,7 @@ nano /etc/apt/sources.list.d/grafana.list
   deb https://packagecloud.io/grafana/stable/debian/ stretch main
 curl https://packagecloud.io/gpg.key | sudo apt-key add -
 apt update
-apt install grafana
+apt install -y grafana
 systemctl enable grafana-server
 systemctl daemon-reload
 service grafana-server start

@@ -1,0 +1,7 @@
+======================
+ Ubuntu 18.04 Desktop
+======================
+
+ubuntu-drivers devices
+
+ubuntu-drivers autoinstall
