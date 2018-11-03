@@ -2,6 +2,11 @@
  Git
 =====
 
+
+ssh -T git@github.com
+git remote set-url origin git@github.com:username/your-repository.git
+
+
 git init
 git status
 git add filename
@@ -23,7 +28,7 @@ git cat-file
 git hash-object
 git count-objects
 
-Git is a 
+Git is a
    Stupid Content Tracker
    Persistent Map (of keys and values)
 
