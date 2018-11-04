@@ -4,6 +4,7 @@
 
 
 ssh -T git@github.com
+git clone git://github.com/username/your-repository
 git remote set-url origin git@github.com:username/your-repository.git
 
 

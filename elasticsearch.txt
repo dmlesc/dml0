@@ -60,3 +60,93 @@ curl -XPUT 'http://fnsn0:9200/_template/syslog?pretty' -H 'Content-Type: applica
   }
 }
 '
+
+
+
+
+
+
+
+
+
+
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
+apt update
+apt install elasticsearch
+systemctl enable elasticsearch
+systemctl daemon-reload
+service elasticsearch start
+
+curl localhost:9200
+
+cd /etc/elasticsearch
+nano elasticsearch.yml
+  cluster.name: blak-es0
+  node.name: blak-es0
+  path.data: /var/lib/elasticsearch
+  path.logs: /var/log/elasticsearch
+  network.host: 0.0.0.0
+nano jvm.options
+  ## JVM configuration
+
+  -Xms8g
+  -Xmx8g
+
+  -XX:+UseConcMarkSweepGC
+  -XX:CMSInitiatingOccupancyFraction=75
+  -XX:+UseCMSInitiatingOccupancyOnly
+  -XX:+AlwaysPreTouch
+  -server
+  -Xss1m
+  -Djava.awt.headless=true
+  -Dfile.encoding=UTF-8
+  -Djna.nosys=true
+  -Djdk.io.permissionsUseCanonicalPath=true
+  -Dio.netty.noUnsafe=true
+  -Dio.netty.noKeySetOptimization=true
+  -Dio.netty.recycler.maxCapacityPerThread=0
+  -Dlog4j.shutdownHookEnabled=false
+  -Dlog4j2.disable.jmx=true
+  -Dlog4j.skipJansi=true
+  -XX:+HeapDumpOnOutOfMemoryError
+
+service elasticsearch restart
+
+cd /opt
+wget https://github.com/justwatchcom/elasticsearch_exporter/releases/download/v1.0.2/elasticsearch_exporter-1.0.2.linux-amd64.tar.gz
+tar xvzf elasticsearch_exporter-1.0.2.linux-amd64.tar.gz
+nano /lib/systemd/system/elasticsearch_exporter.service
+  [Unit]
+  Description=elasticsearch_exporter
+  After=network.target
+
+  [Service]
+  User=root
+  ExecStart=/opt/elasticsearch_exporter-1.0.2.linux-amd64/elasticsearch_exporter -es.uri "http://localhost:9200"
+  WorkingDirectory=/opt/elasticsearch_exporter-1.0.2.linux-amd64
+  Restart=on-failure
+
+  [Install]
+  WantedBy=multi-user.target
+
+systemctl enable elasticsearch_exporter
+systemctl daemon-reload
+service elasticsearch_exporter start
+curl localhost:9108/metrics
+
+
+
+apt install kibana
+cd /etc/kibana
+nano kibana.yml
+  server.host: 0.0.0.0
+  server.name: "blak-es0"
+  elasticsearch.url: "http://localhost:9200"
+  elasticsearch.requestTimeout: 300000
+
+systemctl enable kibana
+systemctl daemon-reload
+service kibana restart
+
+exit
