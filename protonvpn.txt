@@ -1,0 +1,21 @@
+https://protonvpn.com/support/linux-vpn-tool/
+
+apt install openvpn
+apt install dialog
+
+wget -O protonvpn-cli.sh https://raw.githubusercontent.com/ProtonVPN/protonvpn-cli/master/protonvpn-cli.sh
+chmod +x protonvpn-cli.sh
+protonvpn-cli -init
+  pvpn -init
+protonvpn-cli -connect
+  pvpn -c
+protonvpn-cli -disconnect
+
+
+https://ipleak.net/
+https://protonvpn.com/support/linux-vpn-tool/
+
+
+
+host myip.opendns.com resolver1.opendns.com
+dig +short myip.opendns.com @resolver1.opendns.com

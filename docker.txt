@@ -10,90 +10,201 @@ add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(
 apt update
 apt install docker-ce
 docker --version
-  Docker version 18.05.0-ce, build f150324
+  Docker version 18.09.0, build 4d60db4
 
-apt install docker-compose
-docker-compose --version
-  docker-compose version 1.17.1, build unknown
+usermod -aG docker dml
 
-mkdir ~/workspace
-cd ~/workspace
+docker info
+docker images
+docker ps
+docker container ls -a
+docker container prune
+docker version
 
-git clone git@github.com:digicert/digicert_com.git
-git clone git@github.com:digicert/web_content.git
-git clone git@github.com:digicert/digicert_docker.git
 
-cd digicert_docker
+Dockerfile
+  # Use an official Python runtime as a parent image
+  FROM python:2.7-slim
+
+  # Set the working directory to /app
+  WORKDIR /app
+
+  # Copy the current directory contents into the container at /app
+  COPY . /app
+
+  # Install any needed packages specified in requirements.txt
+  RUN pip install --trusted-host pypi.python.org -r requirements.txt
+
+  # Make port 80 available to the world outside this container
+  EXPOSE 80
+
+  # Define environment variable
+  ENV NAME World
+
+  # Run app.py when the container launches
+  CMD ["python", "app.py"]
+
+
+docker build -t test_app .
+docker run -p 4000:80 test_app
+
+http://docker0:4000/
+
+docker run -d -p 4000:80 test_app
+
+docker login
+
+aie8jfu:&^54YHGfe
+
+# docker tag image username/repository:tag
+# docker push username/repository:tag
+# docker run -p 4000:80 username/repository:tag
+
+docker tag test_app dmlesc/test_app:part2
+docker push dmlesc/test_app:part2
+
+sudo curl -L "https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+sudo curl -L https://raw.githubusercontent.com/docker/compose/1.23.1/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
+
+
+
+
+docker-compose.yml
+  version: "3"
+  services:
+    web:
+      # replace username/repo:tag with your name and image details
+      image: username/repo:tag
+      deploy:
+        replicas: 5
+        resources:
+          limits:
+            cpus: "0.1"
+            memory: 50M
+        restart_policy:
+          condition: on-failure
+      ports:
+        - "4000:80"
+      networks:
+        - webnet
+  networks:
+    webnet:
+
+docker-compose.yml
+  version: '3'
+  services:
+    web:
+      build: .
+      ports:
+      - "5000:5000"
+      volumes:
+      - .:/code
+      - logvolume01:/var/log
+      links:
+      - redis
+    redis:
+      image: redis
+  volumes:
+    logvolume01: {}
+
+docker swarm init
+docker stack deploy -c docker-compose.yml test_app
+docker service ls
+docker service ps test_app_web
+docker stack rm test_app
+docker swarm leave --force
+
+
+
+mkdir test_django
+cd test_django
+nano Dockerfile
+  FROM python:3
+  ENV PYTHONUNBUFFERED 1
+  RUN mkdir /code
+  WORKDIR /code
+  ADD requirements.txt /code/
+  RUN pip install -r requirements.txt
+  ADD . /code/
+
+nano requirements.txt
+  Django>=1.8,<2.0
+  psycopg2
+
+nano docker-compose.yml
+version: '3'
+
+services:
+  db:
+    image: postgres
+  web:
+    build: .
+    command: python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+sudo docker-compose run web django-admin.py startproject test_django .
+sudo chown -R $USER:$USER .
+nano test_django/settings.py
+DATABASES = {
+  'default': {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': 'postgres',
+    'USER': 'postgres',
+    'HOST': 'db',
+    'PORT': 5432,
+  }
+}
+
 docker-compose up
-Ctrl-C
-
-sudo chown 27:27 ~/workspace/.digisql_data/data
-sudo chown dml:dml ~/workspace/.digisql_data/
-
-docker-compose up
-./refresh_schema.sh
-
-Ctrl-C
-docker-compose up -d
-
-http://splunklocal:8000
-http://127.0.0.1:8000
-  user: admin
-  pass: nothing
-
-https://localhost.digicert.com/account/login.php
-  user: john.smith@digicert.com
-  pass: nothing
-
-
-
+docker-compose down
 
 
 =====
  LXD
 =====
 
-lxc copy base docker --container-only -c security.nesting=true
-lxc config set docker limits.cpu 2
-lxc config set docker limits.memory 2GB
-lxc start docker
-lxc exec docker bash
+lxc copy base docker0 --container-only -c security.nesting=true
+lxc config set docker0 limits.cpu 2
+lxc config set docker0 limits.memory 2GB
+lxc start docker0
+lxc exec docker0 bash
 
 [install docker]
 
-mkdir -p /workspace/digicert_docker
-exit
+mkdir /etc/systemd/system/containerd.service.d/
+cd /etc/systemd/system/containerd.service.d/
+nano override.conf
+  [Service]
+  ExecStartPre=
 
-cd /home/dml/workspace/digicert_docker
-tar cf - . | lxc exec docker -- tar xvf - -C /workspace/digicert_docker
+systemctl daemon-reload
+systemctl restart containerd.service
 
-lxc exec docker bash
 
-cd /workspace
-chown -R root:root digicert_docker/
-cd digicert_docker
-cp docker-compose.yml splunk-only.yml
-nano splunk-only.yml
-  version: '2'
 
-  services:
-    splunk:
-      image: digidock.dev.tgp.digicert.com:5000/splunk
-      hostname: splunklocal
-      environment:
-        SPLUNK_START_ARGS: --accept-license --answer-yes
-        #SPLUNK_ADD: tcp 1514
-        SPLUNK_USER: root
-        SPLUNK_CMD: 'edit user admin -password nothing -role admin -auth admin:changeme'
-        OPTIMISTIC_ABOUT_FILE_LOCKING: 1
-      network_mode: bridge
-      ports:
-        - "8000:8000"
-        #- "1514:1514"
-        - "2514:2514"
-        - "8088:8088"
+==========
+ commands
+==========
 
-docker-compose -f splunk-only.yml up
-docker-compose -f splunk-only.yml up -d
-
-docker exec -it digicertdocker_splunk_1 /bin/bash
+docker build -t friendlyhello .  # Create image using this directory's Dockerfile
+docker run -p 4000:80 friendlyhello  # Run "friendlyname" mapping port 4000 to 80
+docker run -d -p 4000:80 friendlyhello         # Same thing, but in detached mode
+docker container ls                                # List all running containers
+docker container ls -a             # List all containers, even those not running
+docker container stop <hash>           # Gracefully stop the specified container
+docker container kill <hash>         # Force shutdown of the specified container
+docker container rm <hash>        # Remove specified container from this machine
+docker container rm $(docker container ls -a -q)         # Remove all containers
+docker image ls -a                             # List all images on this machine
+docker image rm <image id>            # Remove specified image from this machine
+docker image rm $(docker image ls -a -q)   # Remove all images from this machine
+docker login             # Log in this CLI session using your Docker credentials
+docker tag <image> username/repository:tag  # Tag <image> for upload to registry
+docker push username/repository:tag            # Upload tagged image to registry
+docker run username/repository:tag                   # Run image from a registry

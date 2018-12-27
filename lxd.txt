@@ -9,7 +9,7 @@ lxd --version
 
 lxd init
 
-lxc profile device set default root size 8GB
+lxc profile device set default root size 20GB
 
 lxc launch ubuntu:18.04 base
 lxc config set base limits.cpu 1
