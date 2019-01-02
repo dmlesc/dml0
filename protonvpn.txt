@@ -5,11 +5,10 @@ apt install dialog
 
 wget -O protonvpn-cli.sh https://raw.githubusercontent.com/ProtonVPN/protonvpn-cli/master/protonvpn-cli.sh
 chmod +x protonvpn-cli.sh
-protonvpn-cli -init
-  pvpn -init
-protonvpn-cli -connect
-  pvpn -c
-protonvpn-cli -disconnect
+./protonvpn-cli.sh --install
+pvpn -init
+pvpn -c
+pvpn -d
 
 
 https://ipleak.net/

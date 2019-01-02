@@ -52,7 +52,7 @@ nano /etc/hosts
 [ install prometheus ]
 [ install grafana ]
 
-
+apt remove --purge lxd* lxc*
 
 
 lxc storage create vol1 zfs source=vol1
@@ -64,6 +64,7 @@ lxc storage list
 lxc copy base es --container-only -s data
 
 
+lxc config device add docker0 m0n1t0r disk path=/home/dml/ws/m0n1t0r source=/home/dml/git/m0n1t0r
 
 
 =====================
