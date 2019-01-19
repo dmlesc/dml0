@@ -1,5 +1,8 @@
-https://docs.docker.com/install/linux/docker-ce/ubuntu
+==============
+ installation
+==============
 
+https://docs.docker.com/install/linux/docker-ce/ubuntu
 
 apt remove docker docker-engine docker.io
 apt install apt-transport-https ca-certificates curl software-properties-common
@@ -14,13 +17,10 @@ docker --version
 
 usermod -aG docker dml
 
-docker info
-docker images
-docker ps
-docker container ls -a
-docker container prune
-docker version
 
+=======
+ build
+=======
 
 Dockerfile
   # Use an official Python runtime as a parent image
@@ -54,115 +54,12 @@ docker run -d -p 4000:80 test_app
 
 docker login
 
-aie8jfu:&^54YHGfe
-
 # docker tag image username/repository:tag
 # docker push username/repository:tag
 # docker run -p 4000:80 username/repository:tag
 
 docker tag test_app dmlesc/test_app:part2
 docker push dmlesc/test_app:part2
-
-sudo curl -L "https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-sudo curl -L https://raw.githubusercontent.com/docker/compose/1.23.1/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
-
-
-
-
-docker-compose.yml
-  version: "3"
-  services:
-    web:
-      # replace username/repo:tag with your name and image details
-      image: username/repo:tag
-      deploy:
-        replicas: 5
-        resources:
-          limits:
-            cpus: "0.1"
-            memory: 50M
-        restart_policy:
-          condition: on-failure
-      ports:
-        - "4000:80"
-      networks:
-        - webnet
-  networks:
-    webnet:
-
-docker-compose.yml
-  version: '3'
-  services:
-    web:
-      build: .
-      ports:
-      - "5000:5000"
-      volumes:
-      - .:/code
-      - logvolume01:/var/log
-      links:
-      - redis
-    redis:
-      image: redis
-  volumes:
-    logvolume01: {}
-
-docker swarm init
-docker stack deploy -c docker-compose.yml test_app
-docker service ls
-docker service ps test_app_web
-docker stack rm test_app
-docker swarm leave --force
-
-
-
-mkdir test_django
-cd test_django
-nano Dockerfile
-  FROM python:3
-  ENV PYTHONUNBUFFERED 1
-  RUN mkdir /code
-  WORKDIR /code
-  ADD requirements.txt /code/
-  RUN pip install -r requirements.txt
-  ADD . /code/
-
-nano requirements.txt
-  Django>=1.8,<2.0
-  psycopg2
-
-nano docker-compose.yml
-version: '3'
-
-services:
-  db:
-    image: postgres
-  web:
-    build: .
-    command: python3 manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/code
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-
-sudo docker-compose run web django-admin.py startproject test_django .
-sudo chown -R $USER:$USER .
-nano test_django/settings.py
-DATABASES = {
-  'default': {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': 'postgres',
-    'USER': 'postgres',
-    'HOST': 'db',
-    'PORT': 5432,
-  }
-}
-
-docker-compose up
-docker-compose down
 
 
 =====
@@ -185,6 +82,7 @@ nano override.conf
 
 systemctl daemon-reload
 systemctl restart containerd.service
+systemctl restart docker.service
 
 
 
